@@ -26,7 +26,7 @@ TEMPLATE_CHART = """
 @register.simple_tag(name='render_chart')
 def render_chart(chart):
     spec = chart.to_dict()
-    output_div = ''.join(random.choices(string.ascii_letters + string.digits, k=8))
+    output_div = '_' + ''.join(random.choices(string.ascii_letters + string.digits, k=7))
     embed_opt = {"mode": "vega-lite", "actions": False}
     c = template.Context()
     return template.Template(TEMPLATE_CHART.format(output_div=output_div, spec=json.dumps(spec), embed_opt=json.dumps(embed_opt))).render(c)
