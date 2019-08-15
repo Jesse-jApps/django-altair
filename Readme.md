@@ -23,7 +23,7 @@ class IndexView(TemplateView):
         context = locals()
         source = data.cars()
 
-        context['chart2'] = alt.Chart(source).mark_circle().encode(
+        context['chart'] = alt.Chart(source).mark_circle().encode(
             x='Horsepower',
             y='Miles_per_Gallon',
             color='Origin'
@@ -41,7 +41,7 @@ and in your template use
 ```
 to render chart.
 
-The following scripts must be available
+The following script-tags must be included
 ```
 <script src="https://cdn.jsdelivr.net/npm//vega@3.2"></script>
 <script src="https://cdn.jsdelivr.net/npm//vega-lite@2.4.1"></script>
