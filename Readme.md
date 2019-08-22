@@ -2,6 +2,14 @@
 
 Django app that provide a simple template tag to render an altair chart into a django template.
 
+## Installation
+
+Currently the `django-altair` is not yet on pypi. To install the library run
+
+```
+pip3 install .
+```
+
 ## Usage
 ```
 INSTALLED_APPS = (
