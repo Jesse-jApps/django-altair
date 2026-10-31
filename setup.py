@@ -1,12 +1,10 @@
 #!/usr/bin/env python
-import re
-
 from setuptools import find_packages, setup
 
 
 setup(
     name='django-altair',
-    version=1.0,
+    version='1.1.0',
     description='Altair widget for Django',
 
     author='Jesse Hinrichsen',
@@ -16,5 +14,7 @@ setup(
     packages=find_packages(exclude=['example.*', 'example', 'tests', 'tests.*']),
     include_package_data=True,  # declarations in MANIFEST.in
 
-    install_requires=['Django>=1.11']
+    python_requires='>=3.10',
+    install_requires=['Django>=5.2'],
+    license='BSD-3-Clause',
 )

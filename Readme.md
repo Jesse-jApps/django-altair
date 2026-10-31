@@ -2,6 +2,11 @@
 
 A small Django template tag for embedding interactive Altair charts in existing Django pages.
 
+## Supported versions
+
+Python 3.10 or later and Django 5.2 or later. CI covers Django 5.2 on Python
+3.10/3.12 and Django 6.0 on Python 3.14. Earlier releases are historical.
+
 ## Installation
 
 From a checkout of this repository:
