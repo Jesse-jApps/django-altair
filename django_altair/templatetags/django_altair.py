@@ -1,32 +1,32 @@
+import json
+from uuid import uuid4
+
 from django import template
-import random, string, json
+from django.utils.html import escapejs, format_html
 
 register = template.Library()
 
 
 TEMPLATE_CHART = """
 <div id="{output_div}"></div>
-    <script type="text/javascript">
-    var spec = {spec};
-    var embed_opt = {embed_opt};
-    function showError({output_div}, error){{
-        {output_div}.innerHTML = ('<div class="error">'
-                        + '<p>JavaScript Error: ' + error.message + '</p>'
-                        + "<p>This usually means there's a typo in your chart specification. "
-                        + "See the javascript console for the full traceback.</p>"
-                        + '</div>');
-        throw error;
-    }}
-    const {output_div} = document.getElementById('{output_div}');
-    vegaEmbed("#{output_div}", spec, embed_opt)
-      .catch(error => showError({output_div}, error));
-    </script>
+<script type="text/javascript">
+(function () {{
+    const output = document.getElementById("{output_div}");
+    const spec = JSON.parse("{spec}");
+    vegaEmbed(output, spec, {{"mode": "vega-lite", "actions": false}})
+        .catch(function (error) {{
+            output.textContent = "JavaScript Error: " + error.message;
+            console.error(error);
+        }});
+}})();
+</script>
 """
 
 @register.simple_tag(name='render_chart')
 def render_chart(chart):
-    spec = chart.to_dict()
-    output_div = '_' + ''.join(random.choices(string.ascii_letters + string.digits, k=7))
-    embed_opt = {"mode": "vega-lite", "actions": False}
-    c = template.Context()
-    return template.Template(TEMPLATE_CHART.format(output_div=output_div, spec=json.dumps(spec), embed_opt=json.dumps(embed_opt))).render(c)
+    # Treat chart values as data, never as Django templates or executable HTML.
+    return format_html(
+        TEMPLATE_CHART,
+        output_div="chart_" + uuid4().hex,
+        spec=escapejs(json.dumps(chart.to_dict())),
+    )

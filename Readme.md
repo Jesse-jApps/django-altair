@@ -1,57 +1,77 @@
-# Django altair
+# Django Altair
 
-Django app that provide a simple template tag to render an altair chart into a django template.
+A small Django template tag for embedding interactive Altair charts in existing Django pages.
 
 ## Installation
 
-Currently the `django-altair` is not yet on pypi. To install the library run
+From a checkout of this repository:
 
+```sh
+python -m pip install . altair
 ```
-pip3 install .
-```
+
+The template tag accepts an object with a `to_dict()` method. Altair is needed by your application to create charts; the tag itself only depends on Django.
 
 ## Usage
-```
-INSTALLED_APPS = (
-    ...,
-    'django_altair',
-)
+
+Add `django_altair` to `INSTALLED_APPS`:
+
+```python
+INSTALLED_APPS = [
+    # ...
+    "django_altair",
+]
 ```
 
-In your view
-```
-from django.views.generic import TemplateView
+Create a chart in your view and pass matching JavaScript runtime versions to the template:
+
+```python
+import altair as alt
 from django.shortcuts import render
-from vega_datasets import data
 
-class IndexView(TemplateView):
-    template_name = 'index.html'
 
-    def get(self, request, *args, **kwargs):
-        context = locals()
-        source = data.cars()
-
-        context['chart'] = alt.Chart(source).mark_circle().encode(
-            x='Horsepower',
-            y='Miles_per_Gallon',
-            color='Origin'
-        ).interactive()
-        return render(request, self.template_name, context)
+def index(request):
+    chart = alt.Chart(alt.Data(values=[
+        {"category": "A", "value": 28},
+        {"category": "B", "value": 55},
+    ])).mark_bar().encode(x="category:N", y="value:Q")
+    return render(request, "index.html", {
+        "chart": chart,
+        "vega_version": alt.VEGA_VERSION,
+        "vegalite_version": alt.VEGALITE_VERSION,
+        "vegaembed_version": alt.VEGAEMBED_VERSION,
+    })
 ```
 
-and in your template use
-```
+Include the matching runtimes once, before rendering charts:
+
+```html
 {% load django_altair %}
+<script src="https://cdn.jsdelivr.net/npm/vega@{{ vega_version }}"></script>
+<script src="https://cdn.jsdelivr.net/npm/vega-lite@{{ vegalite_version }}"></script>
+<script src="https://cdn.jsdelivr.net/npm/vega-embed@{{ vegaembed_version }}"></script>
 
-<div>
-    {% render_chart chart %}
-</div>
+{% render_chart chart %}
 ```
-to render chart.
 
-The following script-tags must be included
+You can call `render_chart` multiple times on the same page. Each chart receives its own target and JavaScript scope. Chart values are serialized as data, including strings containing HTML or Django template syntax.
+
+For production, pin or self-host the matching JavaScript assets according to your application's deployment policy. The tag emits an inline script; a Content Security Policy must allow it. This is not a sanitizer for arbitrary, untrusted Vega specifications, which can include external data URLs and other renderer features.
+
+See Altair's [HTML embedding documentation](https://altair-viz.github.io/user_guide/saving_charts.html#html-format) for runtime details.
+
+## Local example
+
+```sh
+python -m pip install -e . altair
+cd example
+python manage.py runserver
 ```
-<script src="https://cdn.jsdelivr.net/npm//vega@3.2"></script>
-<script src="https://cdn.jsdelivr.net/npm//vega-lite@2.4.1"></script>
-<script src="https://cdn.jsdelivr.net/npm//vega-embed@3.0"></script>
+
+The example uses inline data, so no dataset download is required. The JavaScript assets require an internet connection. Its settings are for local development only.
+
+## Tests
+
+```sh
+python -m unittest discover -s tests -v
 ```

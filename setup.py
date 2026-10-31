@@ -13,7 +13,7 @@ setup(
     author_email='jesse.hinrichsen@gmail.com',
     url='https://github.com/jesse-japps/django-altair/',
 
-    packages=find_packages(exclude=['example.*', 'example']),
+    packages=find_packages(exclude=['example.*', 'example', 'tests', 'tests.*']),
     include_package_data=True,  # declarations in MANIFEST.in
 
     install_requires=['Django>=1.11']
